@@ -5,27 +5,27 @@ import (
 )
 
 // Collection 集合类型
-type Collection[V any] struct {
-	items *Map[V]
+type Collection struct {
+	items *HashMap
 }
 
 // NewCollection 创建新的集合
-func NewCollection[V any](items *Map[V]) *Collection[V] {
+func NewCollection(items *HashMap) *Collection {
 	if items == nil {
-		items = &Map[V]{}
+		items = &HashMap{}
 	}
-	return &Collection[V]{
+	return &Collection{
 		items: items,
 	}
 }
 
 // All 返回所有项目
-func (c *Collection[V]) All() *Map[V] {
+func (c *Collection) All() *HashMap {
 	return c.items
 }
 
 // Get 使用"点"表示法从集合中获取项目
-func (c *Collection[V]) Get(key string, defaultValue ...V) V {
+func (c *Collection) Get(key string, defaultValue ...any) any {
 	if key == "" {
 		return GetDefaultValue(defaultValue...)
 	}
@@ -50,7 +50,7 @@ func (c *Collection[V]) Get(key string, defaultValue ...V) V {
 		}
 
 		// 尝试将值转换为 Map
-		if nestedMap, ok := any(val).(*Map[V]); ok {
+		if nestedMap, ok := any(val).(*HashMap); ok {
 			current = nestedMap
 		} else {
 			return GetDefaultValue(defaultValue...)
@@ -65,7 +65,7 @@ func (c *Collection[V]) Get(key string, defaultValue ...V) V {
 }
 
 // Set 设置集合中的值
-func (c *Collection[V]) Set(key string, value V) {
+func (c *Collection) Set(key string, value any) {
 	if key == "" {
 		return
 	}
@@ -79,17 +79,17 @@ func (c *Collection[V]) Set(key string, value V) {
 		val := current.Get(segment)
 
 		if IsZero(val) {
-			newMap := &Map[V]{}
-			(*current)[segment] = any(newMap).(V)
+			newMap := &HashMap{}
+			(*current)[segment] = any(newMap)
 			current = newMap
 			continue
 		}
 
-		if nestedMap, ok := any(val).(*Map[V]); ok {
+		if nestedMap, ok := any(val).(*HashMap); ok {
 			current = nestedMap
 		} else {
-			newMap := &Map[V]{}
-			(*current)[segment] = any(newMap).(V)
+			newMap := &HashMap{}
+			(*current)[segment] = any(newMap)
 			current = newMap
 		}
 	}
@@ -98,25 +98,25 @@ func (c *Collection[V]) Set(key string, value V) {
 }
 
 // Has 检查键是否存在
-func (c *Collection[V]) Has(key string) bool {
+func (c *Collection) Has(key string) bool {
 	return c.items.Has(key)
 }
 
 // Count 返回集合中的项目数
-func (c *Collection[V]) Count() int {
+func (c *Collection) Count() int {
 	return len(*c.items)
 }
 
 // ToMap 将集合转换为 Map
-func (c *Collection[V]) ToMap() *Map[V] {
+func (c *Collection) ToMap() *HashMap {
 	return c.All()
 }
 
-func (c *Collection[V]) ToJson() (string, error) {
+func (c *Collection) ToJson() (string, error) {
 	return JsonEncode(c.items)
 }
 
-func (c *Collection[V]) String() string {
+func (c *Collection) String() string {
 	strJson, _ := c.ToJson()
 	return strJson
 }
