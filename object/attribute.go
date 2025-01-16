@@ -12,6 +12,9 @@ type Attribute struct {
 }
 
 func NewAttribute(attributes *HashMap) *Attribute {
+	if attributes == nil {
+		attributes = &HashMap{}
+	}
 	return &Attribute{
 		Attributes: *attributes,
 	}
