@@ -18,6 +18,16 @@ type HashMap = Map[any]
 // StringMap 是 Map[string] 的类型别名
 type StringMap = Map[string]
 
+// Get 获取 Map 的值。
+func (m *Map[V]) Get(key string) V {
+	return (*m)[key]
+}
+
+func (m *Map[V]) Has(key string) bool {
+	_, exists := (*m)[key]
+	return exists
+}
+
 // MergeMap 通用的合并方法
 func MergeMap[V any](target *Map[V], sources ...*Map[V]) *Map[V] {
 	if target == nil {
@@ -123,16 +133,6 @@ func InHash(val any, hash *HashMap) (exists bool, key string) {
 		}
 	}
 	return false, ""
-}
-
-// Get 获取 Map 的值。
-func (m *Map[V]) Get(key string) V {
-	return (*m)[key]
-}
-
-func (m *Map[V]) Has(key string) bool {
-	_, exists := (*m)[key]
-	return exists
 }
 
 // GetMapKV 获取 Map 的键值对

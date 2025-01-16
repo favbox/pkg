@@ -1,15 +1,23 @@
 package object
 
-import "reflect"
+import (
+	"github.com/samber/lo"
+	"reflect"
+)
+
+// IsNil 工具函數，判斷對象是否為 nil
+func IsNil(obj any) bool {
+	return obj == nil || (reflect.ValueOf(obj).Kind() == reflect.Ptr && reflect.ValueOf(obj).IsNil())
+}
 
 // IsZero 工具函数：判断空值
 func IsZero(v any) bool {
 	if v == nil {
 		return true
 	}
-	//if lo.IsEmpty(v) {
-	//	return true
-	//}
+	if lo.IsEmpty(v) {
+		return true
+	}
 	switch t := v.(type) {
 	case string:
 		return t == ""
@@ -44,4 +52,13 @@ func IsZero(v any) bool {
 			return val.IsZero()
 		}
 	}
+}
+
+// GetDefaultValue 获取默认值，如果未提供则返回零值
+func GetDefaultValue[V any](defaultValue ...V) V {
+	if len(defaultValue) > 0 {
+		return defaultValue[0]
+	}
+	var zero V
+	return zero
 }

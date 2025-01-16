@@ -27,14 +27,14 @@ func (c *Collection[V]) All() *Map[V] {
 // Get 使用"点"表示法从集合中获取项目
 func (c *Collection[V]) Get(key string, defaultValue ...V) V {
 	if key == "" {
-		return getDefaultValue(defaultValue...)
+		return GetDefaultValue(defaultValue...)
 	}
 
 	// 处理简单键
 	if !strings.Contains(key, ".") {
 		val := c.items.Get(key)
 		if IsZero(val) {
-			return getDefaultValue(defaultValue...)
+			return GetDefaultValue(defaultValue...)
 		}
 		return val
 	}
@@ -46,20 +46,20 @@ func (c *Collection[V]) Get(key string, defaultValue ...V) V {
 	for _, segment := range segments[:len(segments)-1] {
 		val := current.Get(segment)
 		if IsZero(val) {
-			return getDefaultValue(defaultValue...)
+			return GetDefaultValue(defaultValue...)
 		}
 
 		// 尝试将值转换为 Map
 		if nestedMap, ok := any(val).(*Map[V]); ok {
 			current = nestedMap
 		} else {
-			return getDefaultValue(defaultValue...)
+			return GetDefaultValue(defaultValue...)
 		}
 	}
 
 	val := current.Get(segments[len(segments)-1])
 	if IsZero(val) {
-		return getDefaultValue(defaultValue...)
+		return GetDefaultValue(defaultValue...)
 	}
 	return val
 }
