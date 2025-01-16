@@ -130,6 +130,11 @@ func (m *Map[V]) Get(key string) V {
 	return (*m)[key]
 }
 
+func (m *Map[V]) Has(key string) bool {
+	_, exists := (*m)[key]
+	return exists
+}
+
 // GetMapKV 获取 Map 的键值对
 func GetMapKV[V any](maps Map[V]) (keys []string, values []any) {
 	mapLen := len(maps)
