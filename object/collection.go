@@ -25,15 +25,18 @@ func (c *Collection[V]) All() *Map[V] {
 }
 
 // Get 使用"点"表示法从集合中获取项目
-func (c *Collection[V]) Get(key string) V {
+func (c *Collection[V]) Get(key string, defaultValue ...V) V {
 	if key == "" {
-		var zero V
-		return zero
+		return getDefaultValue(defaultValue...)
 	}
 
 	// 处理简单键
 	if !strings.Contains(key, ".") {
-		return c.items.Get(key)
+		val := c.items.Get(key)
+		if IsZero(val) {
+			return getDefaultValue(defaultValue...)
+		}
+		return val
 	}
 
 	// 处理嵌套键
@@ -43,20 +46,22 @@ func (c *Collection[V]) Get(key string) V {
 	for _, segment := range segments[:len(segments)-1] {
 		val := current.Get(segment)
 		if IsZero(val) {
-			var zero V
-			return zero
+			return getDefaultValue(defaultValue...)
 		}
 
 		// 尝试将值转换为 Map
 		if nestedMap, ok := any(val).(*Map[V]); ok {
 			current = nestedMap
 		} else {
-			var zero V
-			return zero
+			return getDefaultValue(defaultValue...)
 		}
 	}
 
-	return current.Get(segments[len(segments)-1])
+	val := current.Get(segments[len(segments)-1])
+	if IsZero(val) {
+		return getDefaultValue(defaultValue...)
+	}
+	return val
 }
 
 // Set 设置集合中的值
@@ -105,4 +110,13 @@ func (c *Collection[V]) Count() int {
 // ToMap 将集合转换为 Map
 func (c *Collection[V]) ToMap() *Map[V] {
 	return c.All()
+}
+
+func (c *Collection[V]) ToJson() (string, error) {
+	return JsonEncode(c.items)
+}
+
+func (c *Collection[V]) String() string {
+	strJson, _ := c.ToJson()
+	return strJson
 }
